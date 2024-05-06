@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+<title>Fog Carport</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="../../public/css/styles.css" th:href="@{/css/styles.css}" rel="stylesheet"/>
+</head>
+
+<body>
+
+<h1>Skræddersyet Carport</h1>
+
+<h2>Tak for din forespørgsel</h2>
+<p>Du har valgt en carport med målene:</p>
+<table>
+    <tr><td>Bredde:</td><td th:text="${session.width}"></td></tr>
+    <tr><td>Længde:</td><td th:text="${session.length}"></td></tr>
+</table>
+
+<p>Vi vender tilbage inden for 2 arbejdsdage</p>
+
+<h2>Stykliste</h2>
+<p>Nu leger vi at kunden har betalt og vil gerne udskrive en stykliste</p>
+
+<form method="get">
+    <button type="submit" formaction="/showbom">Vis stykliste</button>
+</form>
+
+</body>
+</html>

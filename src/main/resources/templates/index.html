@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+<title>Fog Carport</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="../public/css/styles.css" th:href="@{/css/styles.css}" rel="stylesheet"/>
+</head>
+
+<body>
+
+<h1>Fog carport</h1>
+
+<h2>Skræddersyet carport</h2>
+
+<form method="post">
+<select name="width">
+    <option value="540">540 cm</option>
+    <option value="600">600 cm</option>
+</select>
+
+<select name="length">
+    <option value="720">720 cm</option>
+    <option value="780">780 cm</option>
+</select>
+    <button type="submit" formaction="/showsketch">Vis skitse</button>
+</form>
+
+
+</body>
+</html>
