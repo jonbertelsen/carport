@@ -6,6 +6,8 @@ import app.entities.User;
 import app.exceptions.DatabaseException;
 import app.persistence.ConnectionPool;
 import app.persistence.OrderMapper;
+
+import app.services.Calculator;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 
@@ -44,6 +46,13 @@ public class OrderController
         try
         {
             List<OrderItem> orderItems = OrderMapper.getOrderItemsByOrderId(orderId, connectionPool);
+
+            if (orderItems.size() == 0)
+            {
+                ctx.render("orders/showbom.html");
+                return;
+            }
+
             OrderItem orderItem = orderItems.get(0);
 
             ctx.attribute("width", orderItem.getOrder().getCarportWidth());
@@ -68,14 +77,18 @@ public class OrderController
         User user = new User(1, "jon", "1234", "customer"); // hardcoded for now
 
         Order order = new Order(0, status, width, length, totalPrice, user);
+
         // TODO: Insert order in database
         try
         {
             order = OrderMapper.insertOrder(order, connectionPool);
 
             // TODO: Calculate order items (stykliste)
+            Calculator calculator = new Calculator(width, length, connectionPool);
+            calculator.calcCarport(order);
 
             // TODO: Save order items in database (stykliste)
+            OrderMapper.insertOrderItems(calculator.getOrderItems(), connectionPool);
 
             // TODO: Create message to customer and render order / request confirmation
 

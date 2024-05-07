@@ -119,26 +119,25 @@ public class OrderMapper
 
     public static void insertOrderItems(List<OrderItem> orderItems, ConnectionPool connectionPool) throws DatabaseException
     {
-        String sql = "INSERT INTO orders (carport_width, carport_length, status, user_id, total_price) " +
-                "VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO order_item (order_id, product_variant_id, quantity, description) " +
+                "VALUES (?, ?, ?, ?)";
         try (Connection connection = connectionPool.getConnection())
         {
             for (OrderItem orderItem : orderItems)
             {
                 try (PreparedStatement ps = connection.prepareStatement(sql))
                 {
-                    ps.setInt(1, orderItem.getOrder().getCarportWidth());
-                    ps.setInt(2, orderItem.getOrder().getCarportLength());
-                    ps.setInt(3, orderItem.getOrder().getOrderStatusId());
-                    ps.setInt(4, orderItem.getOrder().getUser().getUserId());
-                    ps.setInt(5, orderItem.getOrder().getTotalPrice());
+                    ps.setInt(1, orderItem.getOrder().getOrderId());
+                    ps.setInt(2, orderItem.getProductVariant().getProductVariantId());
+                    ps.setInt(3, orderItem.getQuantity());
+                    ps.setString(4, orderItem.getDescription());
                     ps.executeUpdate();
                 }
             }
         }
         catch (SQLException e)
         {
-            throw new DatabaseException("Could not create user in the database", e.getMessage());
+            throw new DatabaseException("Could not create orderitem in the database", e.getMessage());
         }
     }
 }
