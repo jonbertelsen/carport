@@ -1,12 +1,12 @@
 package app.controllers;
 
-import app.entities.OrderItem;
+import app.entities.Order;
+import app.exceptions.DatabaseException;
 import app.persistence.ConnectionPool;
-import app.services.Calculator;
+import app.persistence.OrderMapper;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class OrderController
@@ -16,35 +16,37 @@ public class OrderController
         app.post("/showsketch", ctx -> showSketch(ctx, connectionPool));
         app.get("/sendrequest", ctx -> sendRequest(ctx, connectionPool));
         app.get("/showbom", ctx -> showBom(ctx, connectionPool));
+        app.get("/showorders", ctx -> showOrders(ctx, connectionPool));
+    }
+
+    private static void showOrders(Context ctx, ConnectionPool connectionPool)
+    {
+        // Get orders from DB
+        try
+        {
+            List<Order> orders = OrderMapper.getAllOrders(connectionPool);
+            ctx.attribute("orders", orders);
+            ctx.render("orders/showorders.html");
+        }
+        catch (DatabaseException e)
+        {
+            throw new RuntimeException(e);
+        }
     }
 
     private static void showBom(Context ctx, ConnectionPool connectionPool)
     {
 
-
         // 1. hent ordre fra databasen
 
-        int width = ctx.sessionAttribute("width");
-        int length = ctx.sessionAttribute("length");
-
-        // 2. Calculate bill of materials (stykliste)
-        Calculator calculator = new Calculator(width, length);
-
-        calculator.calcPoles();
-        calculator.calcRafters();
-        calculator.calcBeams();
-
-        List<OrderItem> bom = calculator.getBom();
-
-        ctx.attribute("bom", bom);
-        ctx.render("orderflow/showbom.html");
+        ctx.render("orders/showbom.html");
     }
 
     private static void sendRequest(Context ctx, ConnectionPool connectionPool)
     {
-        // Insert order in database
+        // TODO: Insert order in database
 
-        // Create message to customer and render order / request confirmation
+        // TODO: Create message to customer and render order / request confirmation
 
         ctx.render("orderflow/requestconfirmation.html");
     }
