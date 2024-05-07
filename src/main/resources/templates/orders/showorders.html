@@ -13,7 +13,7 @@
 
 <h2>Ordrer</h2>
 <p>Du har følgende ordrer og forespørgsler</p>
-<form method="get">
+<form method="post">
 <table>
     <tr th:each="item: ${orders}">
         <td th:text="${item.orderId}">1</td>
@@ -22,7 +22,7 @@
         <td th:text="${item.carportLength}">33</td>
         <td th:text="${item.totalPrice}">334</td>
         <td th:text="${item.user.userName}">Hej</td>
-        <td><button type="submit" th:value="${item.orderId}" formaction="/showbom">Se stykliste</button></td>
+        <td><button type="submit" name="orderId" th:value="${item.orderId}" formaction="/showbom">Se stykliste</button></td>
 </tr>
 </table>
 </form>

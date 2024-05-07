@@ -1,6 +1,8 @@
 package app.controllers;
 
 import app.entities.Order;
+import app.entities.OrderItem;
+import app.entities.User;
 import app.exceptions.DatabaseException;
 import app.persistence.ConnectionPool;
 import app.persistence.OrderMapper;
@@ -15,7 +17,7 @@ public class OrderController
     {
         app.post("/showsketch", ctx -> showSketch(ctx, connectionPool));
         app.get("/sendrequest", ctx -> sendRequest(ctx, connectionPool));
-        app.get("/showbom", ctx -> showBom(ctx, connectionPool));
+        app.post("/showbom", ctx -> showBom(ctx, connectionPool));
         app.get("/showorders", ctx -> showOrders(ctx, connectionPool));
     }
 
@@ -30,6 +32,7 @@ public class OrderController
         }
         catch (DatabaseException e)
         {
+            // TODO: handle exception
             throw new RuntimeException(e);
         }
     }
@@ -37,18 +40,52 @@ public class OrderController
     private static void showBom(Context ctx, ConnectionPool connectionPool)
     {
 
-        // 1. hent ordre fra databasen
+        int orderId = Integer.parseInt(ctx.formParam("orderId"));
+        try
+        {
+            List<OrderItem> orderItems = OrderMapper.getOrderItemsByOrderId(orderId, connectionPool);
+            OrderItem orderItem = orderItems.get(0);
 
-        ctx.render("orders/showbom.html");
+            ctx.attribute("width", orderItem.getOrder().getCarportWidth());
+            ctx.attribute("length", orderItem.getOrder().getCarportLength());
+            ctx.attribute("orderItems", orderItems);
+            ctx.render("orders/showbom.html");
+        }
+        catch (DatabaseException e)
+        {
+            // TODO: handle exception
+            throw new RuntimeException(e);
+        }
     }
 
     private static void sendRequest(Context ctx, ConnectionPool connectionPool)
     {
+        // Get order details from front-end
+        int width = ctx.sessionAttribute("width");
+        int length = ctx.sessionAttribute("length");
+        int status = 1; // hardcoded for now
+        int totalPrice = 19999; // hardcoded for now
+        User user = new User(1, "jon", "1234", "customer"); // hardcoded for now
+
+        Order order = new Order(0, status, width, length, totalPrice, user);
         // TODO: Insert order in database
+        try
+        {
+            order = OrderMapper.insertOrder(order, connectionPool);
 
-        // TODO: Create message to customer and render order / request confirmation
+            // TODO: Calculate order items (stykliste)
 
-        ctx.render("orderflow/requestconfirmation.html");
+            // TODO: Save order items in database (stykliste)
+
+            // TODO: Create message to customer and render order / request confirmation
+
+            ctx.render("orderflow/requestconfirmation.html");
+        }
+        catch (DatabaseException e)
+        {
+            // TODO: handle exception later
+            throw new RuntimeException(e);
+        }
     }
 
     private static void showSketch(Context ctx, ConnectionPool connectionPool)
@@ -57,7 +94,6 @@ public class OrderController
         int length = Integer.parseInt(ctx.formParam("length"));
         ctx.sessionAttribute("width", width);
         ctx.sessionAttribute("length", length);
-
         ctx.render("orderflow/showSketch.html");
     }
 }
