@@ -1,13 +1,18 @@
 package app.controllers;
 
+import app.dtos.OrderFlowDTO;
+import app.entities.CarportItem;
 import app.entities.Order;
 import app.entities.OrderItem;
 import app.entities.User;
 import app.exceptions.DatabaseException;
+import app.persistence.CarportMapper;
 import app.persistence.ConnectionPool;
 import app.persistence.OrderMapper;
 
 import app.services.Calculator;
+import app.services.CalculatorContext;
+import app.services.CalculatorResult;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 
@@ -81,14 +86,26 @@ public class OrderController
         // TODO: Insert order in database
         try
         {
-            order = OrderMapper.insertOrder(order, connectionPool);
+            CalculatorContext calculatorContext = CalculatorContext.getInstance(width, length, connectionPool);
+            List<CarportItem> carportItems = CarportMapper.getAllCarportItems(connectionPool);
+            for (CarportItem carportItem : carportItems)
+            {
+                calculatorContext.setCalcStrategy(carportItem.getAlgoritm());
+                calculatorContext.calculate(carportItem.getProductId());
+            }
+
+            List<CalculatorResult> calculatorResults = calculatorContext.getCalculatorResults();
+            System.out.println("hertil");
+
+
+         //   order = OrderMapper.insertOrder(order, connectionPool);
 
             // TODO: Calculate order items (stykliste)
-            Calculator calculator = new Calculator(width, length, connectionPool);
-            calculator.calcCarport(order);
+      //      Calculator calculator = new Calculator(width, length, connectionPool);
+       //     calculator.calcCarport(order);
 
             // TODO: Save order items in database (stykliste)
-            OrderMapper.insertOrderItems(calculator.getOrderItems(), connectionPool);
+      //      OrderMapper.insertOrderItems(calculator.getOrderItems(), connectionPool);
 
             // TODO: Create message to customer and render order / request confirmation
 
@@ -105,6 +122,7 @@ public class OrderController
     {
         int width = Integer.parseInt(ctx.formParam("width"));
         int length = Integer.parseInt(ctx.formParam("length"));
+
         ctx.sessionAttribute("width", width);
         ctx.sessionAttribute("length", length);
         ctx.render("orderflow/showSketch.html");

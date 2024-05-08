@@ -20,7 +20,8 @@ public class ProductMapper
         List<ProductVariant> productVariants = new ArrayList<>();
         String sql = "SELECT * FROM product_variant " +
                 "INNER JOIN product p USING(product_id) " +
-                "WHERE product_id = ? AND length >= ?";
+                "WHERE product_id = ? AND length >= ? " +
+                "ORDER BY length ASC";
         try (Connection connection = connectionPool.getConnection())
         {
             PreparedStatement ps = connection.prepareStatement(sql);
