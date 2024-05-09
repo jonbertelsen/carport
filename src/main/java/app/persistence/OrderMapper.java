@@ -42,6 +42,39 @@ public class OrderMapper
         return orderList;
     }
 
+    public static Order getOrderById(int orderId, ConnectionPool connectionPool) throws DatabaseException
+    {
+        Order order = null;
+        String sql = "SELECT * FROM orders inner join users using(user_id) WHERE order_id = ?";
+        try (
+                Connection connection = connectionPool.getConnection();
+        )
+        {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, orderId);
+            var resultSet = ps.executeQuery();
+            if (resultSet.next())
+            {
+                int userId = resultSet.getInt("user_id");
+                String userName = resultSet.getString("username");
+                String password = resultSet.getString("password");
+                String role = resultSet.getString("role");
+                int carportWidth = resultSet.getInt("carport_width");
+                int carportLength = resultSet.getInt("carport_length");
+                int status = resultSet.getInt("status");
+                int totalPrice = resultSet.getInt("total_price");
+                User user = new User(userId, userName, password, role);
+                order = new Order(orderId, status, carportWidth, carportLength, totalPrice, user);
+            }
+        }
+        catch (SQLException e)
+        {
+            throw new DatabaseException("Could not get users from the database", e.getMessage());
+        }
+        return order;
+    }
+
+
     public static List<OrderItem> getOrderItemsByOrderId(int orderId, ConnectionPool connectionPool) throws DatabaseException
     {
         List<OrderItem> orderItemList = new ArrayList<>();
