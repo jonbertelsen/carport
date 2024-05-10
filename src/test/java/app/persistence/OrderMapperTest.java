@@ -40,7 +40,6 @@ class OrderMapperTest
                 stmt.execute("CREATE SEQUENCE test.orders_order_id_seq");
                 stmt.execute("ALTER TABLE test.orders ALTER COLUMN order_id SET DEFAULT nextval('test.orders_order_id_seq')");
             }
-
         }
         catch (SQLException e)
         {
